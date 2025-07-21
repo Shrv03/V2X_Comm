@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Solar System Sizer</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌞 Solar System Sizer</h1>
+            <p>Design your optimal solar solution with real-time analysis</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Location & Solar Resource Section -->
+            <section class="input-section">
+                <h2>📍 Location & Solar Resource</h2>
+                <div class="input-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" placeholder="Enter city, state or coordinates">
+                    <button onclick="searchLocation()">Search</button>
+                </div>
+                <div id="map" class="map-container"></div>
+                <div class="solar-data">
+                    <div class="data-item">
+                        <label>Solar Irradiance:</label>
+                        <span id="irradiance">5.5 kWh/m²/day</span>
+                    </div>
+                    <div class="data-item">
+                        <label>Peak Sun Hours:</label>
+                        <span id="peakSunHours">5.5 hours</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Configuration Section -->
+            <section class="input-section">
+                <h2>⚡ System Configuration</h2>
+                <div class="slider-container">
+                    <div class="slider-group">
+                        <label for="consumption">Daily Energy Consumption (kWh):</label>
+                        <input type="range" id="consumption" min="5" max="100" value="30" step="1">
+                        <span id="consumptionValue">30 kWh</span>
+                    </div>
+                    <div class="slider-group">
+                        <label for="roofArea">Available Roof Area (m²):</label>
+                        <input type="range" id="roofArea" min="10" max="200" value="50" step="5">
+                        <span id="roofAreaValue">50 m²</span>
+                    </div>
+                    <div class="slider-group">
+                        <label for="budget">Budget ($):</label>
+                        <input type="range" id="budget" min="5000" max="100000" value="25000" step="1000">
+                        <span id="budgetValue">$25,000</span>
+                    </div>
+                    <div class="slider-group">
+                        <label for="electricityRate">Electricity Rate ($/kWh):</label>
+                        <input type="range" id="electricityRate" min="0.05" max="0.50" value="0.12" step="0.01">
+                        <span id="electricityRateValue">$0.12</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Type Selection -->
+            <section class="input-section">
+                <h2>🔧 System Type</h2>
+                <div class="system-type-buttons">
+                    <button class="system-btn active" onclick="selectSystemType('grid-tied')">Grid-Tied</button>
+                    <button class="system-btn" onclick="selectSystemType('off-grid')">Off-Grid</button>
+                    <button class="system-btn" onclick="selectSystemType('hybrid')">Hybrid</button>
+                </div>
+                <div id="batterySection" class="battery-section hidden">
+                    <div class="slider-group">
+                        <label for="batteryCapacity">Battery Capacity (kWh):</label>
+                        <input type="range" id="batteryCapacity" min="5" max="50" value="20" step="1">
+                        <span id="batteryCapacityValue">20 kWh</span>
+                    </div>
+                    <div class="slider-group">
+                        <label for="backupDays">Backup Days:</label>
+                        <input type="range" id="backupDays" min="1" max="7" value="3" step="1">
+                        <span id="backupDaysValue">3 days</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advanced Options -->
+            <section class="input-section">
+                <h2>🔬 Advanced Options</h2>
+                <div class="advanced-options">
+                    <div class="slider-group">
+                        <label for="panelEfficiency">Panel Efficiency (%):</label>
+                        <input type="range" id="panelEfficiency" min="15" max="25" value="20" step="0.5">
+                        <span id="panelEfficiencyValue">20%</span>
+                    </div>
+                    <div class="slider-group">
+                        <label for="systemLosses">System Losses (%):</label>
+                        <input type="range" id="systemLosses" min="10" max="25" value="15" step="1">
+                        <span id="systemLossesValue">15%</span>
+                    </div>
+                    <div class="slider-group">
+                        <label for="panelCost">Panel Cost ($/W):</label>
+                        <input type="range" id="panelCost" min="0.20" max="1.00" value="0.50" step="0.05">
+                        <span id="panelCostValue">$0.50</span>
+                    </div>
+                    <div class="slider-group">
+                        <label for="batteryCost">Battery Cost ($/kWh):</label>
+                        <input type="range" id="batteryCost" min="100" max="300" value="150" step="10">
+                        <span id="batteryCostValue">$150</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section">
+                <h2>📊 System Analysis Results</h2>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h3>System Size</h3>
+                        <div class="metric">
+                            <span class="value" id="systemSize">0 kW</span>
+                            <span class="label">Required Capacity</span>
+                        </div>
+                        <div class="metric">
+                            <span class="value" id="panelCount">0</span>
+                            <span class="label">Solar Panels</span>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <h3>Economics</h3>
+                        <div class="metric">
+                            <span class="value" id="totalCost">$0</span>
+                            <span class="label">Total System Cost</span>
+                        </div>
+                        <div class="metric">
+                            <span class="value" id="paybackPeriod">0</span>
+                            <span class="label">Payback Period (years)</span>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <h3>Performance</h3>
+                        <div class="metric">
+                            <span class="value" id="annualProduction">0</span>
+                            <span class="label">Annual Production (kWh)</span>
+                        </div>
+                        <div class="metric">
+                            <span class="value" id="lcoe">$0.00</span>
+                            <span class="label">LCOE ($/kWh)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-container">
+                    <h3>Monthly Energy Balance</h3>
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>ROI & Payback Analysis</h3>
+                    <canvas id="roiChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>System Cost Breakdown</h3>
+                    <canvas id="costChart"></canvas>
+                </div>
+            </section>
+
+            <!-- What-If Analysis -->
+            <section class="whatif-section">
+                <h2>🔍 What-If Analysis</h2>
+                <div class="scenario-buttons">
+                    <button onclick="runScenario('efficiency')">+5% Panel Efficiency</button>
+                    <button onclick="runScenario('battery')">50% Battery Cost Reduction</button>
+                    <button onclick="runScenario('hybrid')">Add Battery Storage</button>
+                    <button onclick="runScenario('tariff')">+25% Electricity Rate</button>
+                </div>
+                <div id="scenarioResults" class="scenario-results"></div>
+            </section>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
