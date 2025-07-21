@@ -33,7 +33,6 @@ cd V2X_Comm
 
 2. Open `index.html` in your web browser.
 
-*(If more advanced build or server instructions are needed, add them here.)*
 
 ## Usage
 
